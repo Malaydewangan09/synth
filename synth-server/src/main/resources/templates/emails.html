@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paydrop Mail</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0070f3;
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
+            --text-primary: #000000;
+            --text-secondary: #666666;
+            --border-color: #eaeaea;
+        }
+a {
+            color: rgb(13 110 253 / 0%);
+    text-decoration: underline;
+}
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter' , -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .email-list {
+            max-height: 800px;
+            overflow-y: auto;
+            background: var(--card-bg);
+        }
+
+        .email-item {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+        }
+
+        .email-item:hover {
+            background-color: #f5f5f5;
+            transform: translateY(-1px);
+        }
+
+        .email-subject {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .email-preview {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .email-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-bar {
+            padding: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--card-bg);
+        }
+
+        .tag-filter {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+        }
+
+        .tag-filter:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
+        .tag-filter.active {
+            opacity: 1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-link {
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-link:hover {
+            background-color: #f5f5f5;
+            color: var(--text-primary);
+        }
+
+        .sidebar-link.active {
+            background-color: #f0f0f0;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .tag-UNREAD { background-color: #FF4444; }
+        .tag-INBOX { background-color: #0070f3; }
+        .tag-CATEGORY_PERSONAL { background-color: #00CC88; }
+        .tag-CATEGORY_SOCIAL { background-color: #7928CA; }
+        .tag-CATEGORY_PROMOTIONS { background-color: #F5A623; }
+        .tag-CATEGORY_UPDATES { background-color: #17B1F7; }
+        .tag-IMPORTANT { background-color: #FF0080; }
+
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background-color: #0051c3;
+        }
+
+        /* Custom scrollbar */
+        .email-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .email-list::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        .email-list::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        .spinner-border {
+            color: var(--primary-color);
+        }
+
+
+        [data-theme="dark"] {
+        --primary-color: #0070f3;
+        --bg-color: #1a1a1a;
+        --card-bg: #2d2d2d;
+        --text-primary: #ffffff;
+        --text-secondary: #a0a0a0;
+        --border-color: #404040;
+    }
+
+    /* Theme toggle button styles */
+    .theme-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 10px;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .theme-toggle:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    [data-theme="dark"] .email-item:hover {
+        background-color: #363636;
+    }
+
+    [data-theme="dark"] .sidebar-link:hover {
+        background-color: #363636;
+    }
+
+    [data-theme="dark"] .sidebar-link.active {
+        background-color: #404040;
+    }
+
+    [data-theme="dark"] .modal-content {
+        background-color: var(--card-bg);
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .btn-close {
+        filter: invert(1);
+    }
+
+        .ag-format-container {
+  width: 1142px;
+  margin: 0 auto;
+}
+
+
+.ag-courses_box {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  padding: 50px 0;
+}
+.ag-courses_item {
+  -ms-flex-preferred-size: calc(33.33333% - 30px);
+  flex-basis: calc(83.33333% - 30px);
+
+  margin: 0 15px 30px;
+
+  overflow: hidden;
+
+  border-radius: 28px;
+}
+.ag-courses-item_link {
+  display: block;
+  padding: 30px 20px;
+  background-color: #121212;
+
+  overflow: hidden;
+
+  position: relative;
+}
+.ag-courses-item_link:hover,
+.ag-courses-item_link:hover .ag-courses-item_date {
+  text-decoration: none;
+  color: #FFF;
+}
+.ag-courses-item_link:hover .ag-courses-item_bg {
+  -webkit-transform: scale(10);
+  -ms-transform: scale(10);
+  transform: scale(10);
+}
+.ag-courses-item_title {
+  min-height: 87px;
+  margin: 0 0 -30px;
+
+  overflow: hidden;
+
+  font-weight: bold;
+  font-size: 20px;
+  color: #FFF;
+
+  z-index: 2;
+  position: relative;
+}
+.ag-courses-item_date-box {
+  font-size: 18px;
+  color: #FFF;
+
+  z-index: 2;
+  position: relative;
+}
+.ag-courses-item_date {
+  font-weight: bold;
+  color: #f9b234;
+
+  -webkit-transition: color .5s ease;
+  -o-transition: color .5s ease;
+  transition: color .5s ease
+}
+.ag-courses-item_bg {
+  height: 128px;
+  width: 128px;
+  background-color: #f3f5fb;
+
+  z-index: 1;
+  position: absolute;
+  top: -75px;
+  right: -75px;
+
+  border-radius: 50%;
+
+  -webkit-transition: all .5s ease;
+  -o-transition: all .5s ease;
+  transition: all .5s ease;
+}
+.ag-courses_item:nth-child(2n) .ag-courses-item_bg {
+  background-color: #3ecd5e;
+}
+.ag-courses_item:nth-child(3n) .ag-courses-item_bg {
+  background-color: #e44002;
+}
+.ag-courses_item:nth-child(4n) .ag-courses-item_bg {
+  background-color: #952aff;
+}
+.ag-courses_item:nth-child(5n) .ag-courses-item_bg {
+  background-color: #cd3e94;
+}
+.ag-courses_item:nth-child(6n) .ag-courses-item_bg {
+  background-color: #4c49ea;
+}
+
+
+
+@media only screen and (max-width: 979px) {
+  .ag-courses_item {
+    -ms-flex-preferred-size: calc(50% - 30px);
+
+  }
+  .ag-courses-item_title {
+    font-size: 24px;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .ag-format-container {
+    width: 96%;
+  }
+
+}
+@media only screen and (max-width: 639px) {
+  .ag-courses_item {
+    -ms-flex-preferred-size: 100%;
+    flex-basis: 100%;
+  }
+  .ag-courses-item_title {
+    min-height: 72px;
+    line-height: 1;
+
+    font-size: 24px;
+  }
+  .ag-courses-item_link {
+    padding: 22px 40px;
+  }
+  .ag-courses-item_date-box {
+    font-size: 16px;
+  }
+}
+    </style>
+</head>
+<body>
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card p-3">
+                <a href="#" class="sidebar-link active">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-inbox" viewBox="0 0 16 16">
+                        <path d="M4.98 4a.5.5 0 0 0-.39.188L1.54 8H6a.5.5 0 0 1 .5.5 1.5 1.5 0 1 0 3 0A.5.5 0 0 1 10 8h4.46l-3.05-3.812A.5.5 0 0 0 11.02 4H4.98zm-1.17-.437A1.5 1.5 0 0 1 4.98 3h6.04a1.5 1.5 0 0 1 1.17.563l3.7 4.625a.5.5 0 0 1 .106.374l-.39 3.124A1.5 1.5 0 0 1 14.117 13H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .106-.374l3.7-4.625z"/>
+                    </svg>
+                    Inbox
+                </a>
+                <a href="#" class="sidebar-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+                        <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
+                    </svg>
+                    Sent
+                </a>
+                <a href="#" class="sidebar-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark" viewBox="0 0 16 16">
+                        <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+                    </svg>
+                    Draft
+                </a>
+            </div>
+        </div>
+
+        <!-- Email List -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center p-3">
+                    <h5 class="mb-0">Inbox</h5>
+                    <button class="btn btn-primary" onclick="refreshEmails()">
+                        Refresh
+                    </button>
+
+                    <button class="btn btn-primary" onclick="initiatePayment(10)">
+                        Pay ₹10
+                    </button>
+
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newsModal">
+                               News
+                    </button>
+
+
+                        <a href="chat">
+                            <button class="btn btn-primary"> Chat  </button>
+                        </a>
+
+
+                    <button id="fetchPaymentsButton" class="btn btn-primary" onclick="fetchPayments()">Payments</button>
+                    <!-- Container to Display Payments -->
+                    <div id="paymentsList"></div>
+
+
+                </div>
+
+                <div class="filter-bar" id="filterBar">
+                    <span class="tag tag-UNREAD tag-filter" data-tag="UNREAD">Unread</span>
+                    <span class="tag tag-INBOX tag-filter" data-tag="INBOX">Inbox</span>
+                    <span class="tag tag-CATEGORY_SOCIAL tag-filter" data-tag="CATEGORY_SOCIAL">Social</span>
+                    <span class="tag tag-CATEGORY_PROMOTIONS tag-filter" data-tag="CATEGORY_PROMOTIONS">Promotions</span>
+                    <span class="tag tag-CATEGORY_UPDATES tag-filter" data-tag="CATEGORY_UPDATES">Updates</span>
+                    <span class="tag tag-IMPORTANT tag-filter" data-tag="IMPORTANT">Important</span>
+                </div>
+
+                <div class="email-list" id="emailList">
+                    <!-- Emails will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Spinner -->
+<div class="loading" id="loading">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<div class="modal fade" id="newsModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">News Search</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div id="newsContainer">
+
+                        <!-- News content will be dynamically loaded here -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="search-container" class="mb-3">
+                                    <input type="text" id="search-input" class="form-control" placeholder="Enter search term (e.g., bitcoin, technology)">
+                                    <button id="search-button" class="btn btn-primary mt-2">Search News</button>
+                                </div>
+                                <div class="ag-format-container">
+                                    <div class="ag-courses_box">
+                                <div class="ag-courses_item" id="news-results"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Email Modal -->
+<div class="modal fade" id="emailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="emailSubject"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="emailTags" class="mb-3"></div>
+                <div class="mb-3">
+                    <strong>From: </strong><span id="emailFrom"></span>
+                </div>
+                <div class="mb-3">
+                    <strong>Date: </strong><span id="emailDate"></span>
+                </div>
+                <div class="mb-3">
+                    <div id="emailBody"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Add this in the <head> section -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="/static/payments.js"></script>
+<!-- Your existing JavaScript code remains the same -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+
+    // Theme toggle functionality
+
+
+
+   document.addEventListener('DOMContentLoaded', function() {
+       const themeToggle = document.getElementById('themeToggle');
+       const htmlElement = document.documentElement;
+
+       // Check for saved theme preference
+       const savedTheme = localStorage.getItem('theme') || 'light';
+       htmlElement.setAttribute('data-theme', savedTheme);
+       updateThemeIcon(savedTheme);
+
+       themeToggle.addEventListener('click', function() {
+           const currentTheme = htmlElement.getAttribute('data-theme');
+           const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+           htmlElement.setAttribute('data-theme', newTheme);
+           localStorage.setItem('theme', newTheme);
+           updateThemeIcon(newTheme);
+       });
+   });
+
+   function updateThemeIcon(theme) {
+       const themeToggle = document.getElementById('themeToggle');
+       if (theme === 'dark') {
+           themeToggle.innerHTML = `
+               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                   <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+               </svg>`;
+       } else {
+           themeToggle.innerHTML = `
+               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                   <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+               </svg>`;
+       }
+   }
+   let emailModal;
+   let activeFilters = new Set();
+   let allEmails = [];
+
+   document.addEventListener('DOMContentLoaded', function() {
+       emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
+       setupFilterListeners();
+       refreshEmails();
+   });
+
+   function setupFilterListeners() {
+       document.querySelectorAll('.tag-filter').forEach(filter => {
+           filter.addEventListener('click', () => {
+               const tag = filter.dataset.tag;
+               if (activeFilters.has(tag)) {
+                   activeFilters.delete(tag);
+                   filter.classList.remove('active');
+               } else {
+                   activeFilters.add(tag);
+                   filter.classList.add('active');
+               }
+               displayFilteredEmails();
+           });
+       });
+   }
+
+
+   document.addEventListener('DOMContentLoaded', function() {
+    newsModal = new bootstrap.Modal(document.getElementById('newsModal'));
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    const newsResults = document.getElementById('news-results');
+
+    function fetchNews(query) {
+        newsResults.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>';
+
+        const apiKey = 'b6ae48facdae430483bb1c9af13ee4f7';
+        fetch(`https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&apiKey=${apiKey}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.articles && data.articles.length > 0) {
+        newsResults.innerHTML = data.articles
+            .filter(article => article.source.id != null) // Filtering articles where source.id is not null
+            .map(article => `
+
+
+
+<div class="ag-courses_item">
+      <a target="_blank" href=${article.url} class="ag-courses-item_link">
+        <div class="ag-courses-item_bg"></div>
+
+        <div class="ag-courses-item_title">
+          Source: ${article.source.name}
+        </div>
+
+        <div class="ag-courses-item_date-box">
+
+          <span class="ag-courses-item_date">
+            ${article.description || 'No description available'}
+          </span>
+        </div>
+      </a>
+    </div>
+
+
+
+
+
+
+
+            `)
+            .join('');
+    } else {
+        newsResults.innerHTML = '<p>No articles found.</p>';
+    }
+            })
+            .catch(error => {
+                newsResults.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            });
+    }
+
+    // Add event listener for search button
+    searchButton.addEventListener('click', function() {
+        const query = searchInput.value.trim();
+        if (query) {
+            fetchNews(query);
+        }
+    });
+
+    // Optional: Add support for pressing Enter key
+    searchInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            const query = searchInput.value.trim();
+            if (query) {
+                fetchNews(query);
+            }
+        }
+    });
+
+    // Optional initial search or placeholder
+    fetchNews('technology'); // You can set a default search query
+});
+
+
+   document.addEventListener('DOMContentLoaded', function () {
+    const fetchPaymentsButton = document.getElementById('fetchPaymentsButton');
+    const paymentsList = document.getElementById('paymentsList');
+    console.log(fetchPaymentsButton);
+    fetchPaymentsButton.addEventListener('click', function () {
+
+        fetchPayments();
+    });
+
+    async function fetchPayments() {
+
+        paymentsList.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>';
+
+        try {
+            const response = await fetch('/ai/generate');
+            if (!response.ok) {
+                throw new Error('Failed to fetch payments.');
+            }
+
+            const payments = await response.json();
+            displayPayments(payments);
+        } catch (error) {
+            console.error('Error fetching payments:', error);
+            paymentsList.innerHTML = '<div class="alert alert-danger">Error loading payments</div>';
+        }
+    }
+
+    function displayPayments(payments) {
+        paymentsList.innerHTML = '';
+
+        if (payments.length === 0) {
+            paymentsList.innerHTML = '<div class="alert alert-info">No payments found.</div>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'table table-striped';
+
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th>ID</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        `;
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        payments.forEach(payment => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${payment.id}</td>
+                <td>${payment.amount}</td>
+                <td>${payment.status}</td>
+                <td>${new Date(payment.date).toLocaleString()}</td>
+            `;
+            tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+
+        paymentsList.appendChild(table);
+    }
+});
+
+
+// Replace the detectEmailTags function with this:
+function formatLabel(label) {
+   // Remove 'CATEGORY_' prefix and convert to Title Case
+   return label.replace('CATEGORY_', '')
+       .split('_')
+       .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+       .join(' ');
+}
+
+   function refreshEmails() {
+       const loading = document.getElementById('loading');
+
+       loading.style.display = 'block';
+
+       fetch('/auth/emails')
+           .then(response => response.json())
+           .then(emails => {
+               allEmails = emails;
+
+               displayFilteredEmails();
+           })
+           .catch(error => {
+               console.error('Error fetching emails:', error);
+               document.getElementById('emailList').innerHTML =
+                   '<div class="alert alert-danger">Error loading emails</div>';
+           })
+           .finally(() => {
+               loading.style.display = 'none';
+           });
+   }
+
+   function displayFilteredEmails() {
+   const emailList = document.getElementById('emailList');
+   emailList.innerHTML = '';
+
+   // Debug logs
+   console.log('Active Filters:', Array.from(activeFilters));
+   console.log('All Emails:', allEmails);
+
+   const filteredEmails = activeFilters.size > 0
+       ? allEmails.filter(email => {
+           // Debug log for each email's labels
+           console.log('Email Labels:', email.labelIds);
+           return email.labelIds && email.labelIds.some(label => activeFilters.has(label));
+       })
+       : allEmails;
+
+   console.log('Filtered Emails:', filteredEmails);
+
+   filteredEmails.forEach(email => {
+       const subject = getHeader(email, 'Subject') || 'No Subject';
+       const from = getHeader(email, 'From') || 'Unknown Sender';
+       const date = new Date(getHeader(email, 'Date')).toLocaleString();
+       const snippet = email.snippet || '';
+
+       const emailDiv = document.createElement('div');
+       emailDiv.className = 'email-item p-3 border-bottom';
+       emailDiv.innerHTML = `
+            <div class="email-subject">${subject}</div>
+            <div class="email-preview">${from} - ${snippet}</div>
+            <small class="text-muted">${date}</small>
+            <div class="email-tags">
+                ${(email.labelIds || []).map(label =>
+                    `<span class="tag tag-${label}">${formatLabel(label)}</span>`
+                ).join('')}
+            </div>
+            <button class="btn btn-primary btn-sm mt-2 analyze-btn" data-email-id="${email.id}">
+                Analyze
+            </button>
+        `;
+
+       emailDiv.onclick = () => showEmail(email);
+       emailList.appendChild(emailDiv);
+   });
+
+
+    document.querySelectorAll('.analyze-btn').forEach(button => {
+        button.addEventListener('click', async (event) => {
+            event.stopPropagation(); // Prevent the email's onclick from being triggered
+            const emailId = button.getAttribute('data-email-id');
+            await analyzeEmail(emailId);
+        });
+    });
+}
+
+async function analyzeEmail(emailId) {
+console.log(emailId);
+    const analyzeButton = document.querySelector(`.analyze-btn[data-email-id="${emailId}"]`);
+    analyzeButton.disabled = true;
+    analyzeButton.textContent = 'Analyzing...';
+
+    // Find the email data using the emailId
+    const email = allEmails.find(e => e.id === emailId);
+    if (!email) {
+        alert('Email not found!');
+        analyzeButton.disabled = false;
+        analyzeButton.textContent = 'Analyze';
+        return;
+    }
+
+
+
+
+    try {
+        const response = await fetch(`/ai/generate?id=${email.id}`, {
+            method: 'GET',
+             });
+
+        if (!response.ok) {
+            throw new Error('Failed to analyze email.');
+        }
+
+        const result = await response.json();
+        console.log('Analysis Result:', result);
+
+        // Show analysis result (you can replace this with custom UI logic)
+        alert(`Analysis for email ID ${emailId}: ${JSON.stringify(result)}`);
+    } catch (error) {
+        console.error('Error analyzing email:', error);
+        alert('Failed to analyze the email. Please try again later.');
+    } finally {
+        analyzeButton.disabled = false;
+        analyzeButton.textContent = 'Analyze';
+    }
+}
+
+   function getHeader(email, name) {
+       return email.payload.headers.find(h => h.name === name)?.value || '';
+   }
+
+   function getBody(email) {
+       if (email.payload.parts) {
+           const textPart = email.payload.parts.find(part =>
+               part.mimeType === 'text/plain');
+           if (textPart && textPart.body.data) {
+               return atob(textPart.body.data.replace(/-/g, '+')
+                   .replace(/_/g, '/'));
+           }
+       }
+       return email.snippet || 'No content available';
+   }
+
+   // Replace the showEmail function with this:
+function showEmail(email) {
+   document.getElementById('emailSubject').textContent =
+       getHeader(email, 'Subject') || 'No Subject';
+   document.getElementById('emailFrom').textContent =
+       getHeader(email, 'From') || 'Unknown Sender';
+   document.getElementById('emailDate').textContent =
+       new Date(getHeader(email, 'Date')).toLocaleString();
+   document.getElementById('emailBody').textContent = getBody(email);
+
+   // Display labels in modal
+   const tagsDiv = document.getElementById('emailTags');
+   tagsDiv.innerHTML = email.labelIds.map(label =>
+       `<span class="tag tag-${label}">${formatLabel(label)}</span>`
+   ).join(' ');
+       emailModal.show();
+   }
+
+
+
+
+     async function initiatePayment(amount) {
+        try {
+            // Create order on your server
+            const orderResponse = await fetch('/api/payments/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ testamount: 10 })
+            });
+            const orderData = await orderResponse.json();
+            console.error('Payment init:', orderData);
+            // Initialize Razorpay payment
+            const options = {
+                key: "rzp_test_Ljga7U1v3m46To", // Replace with your key
+                amount: amount * 100, // Amount in paise
+                currency: "INR",
+                name: "Paydrop",
+                description: "Payment for services",
+                order_id: orderData.orderId,
+                handler: async function (response) {
+                    try {
+                        // Verify payment on your server
+                        const verifyResponse = await fetch('/api/payments/verify', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                orderId: response.razorpay_order_id,
+                                paymentId: response.razorpay_payment_id,
+                                signature: response.razorpay_signature
+                            })
+                        });
+
+                        const verifyData = await verifyResponse.json();
+                        if (verifyData.status === 'success') {
+                            showPaymentSuccess();
+                        } else {
+                            showPaymentError();
+                        }
+                    } catch (error) {
+                        showPaymentError();
+                    }
+                },
+                prefill: {
+                    name: "Customer Name",
+                    email: "customer@email.com",
+                    contact: "9999999999"
+                },
+                theme: {
+                    color: "#0070f3"
+                }
+            };
+
+            const razorpay = new Razorpay(options);
+            razorpay.open();
+
+        } catch (error) {
+            console.error('Payment failed:', error);
+            showPaymentError();
+        }
+    }
+
+    function showPaymentSuccess() {
+        // Show success message
+        const toast = document.createElement('div');
+        toast.className = 'position-fixed top-0 end-0 p-3';
+        toast.style.zIndex = '1050';
+        toast.innerHTML = `
+            <div class="toast show" role="alert">
+                <div class="toast-header bg-success text-white">
+                    <strong class="me-auto">Success</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    Payment completed successfully!
+                </div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function showPaymentError() {
+        // Show error message
+        const toast = document.createElement('div');
+        toast.className = 'position-fixed top-0 end-0 p-3';
+        toast.style.zIndex = '1050';
+        toast.innerHTML = `
+            <div class="toast show" role="alert">
+                <div class="toast-header bg-danger text-white">
+                    <strong class="me-auto">Error</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    Payment failed. Please try again.
+                </div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+
+
+</script>
+
+
+<button class="theme-toggle" id="themeToggle" title="Toggle theme">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="theme-icon-light" viewBox="0 0 16 16">
+        <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+    </svg>
+</button>
+</body>
+</html>

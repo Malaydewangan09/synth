@@ -1,0 +1,157 @@
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader2, Wand2, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+const LandingPageGenerator = () => {
+const [businessDetails, setBusinessDetails] = useState({
+name: '',
+industry: '',
+description: '',
+target: ''
+});
+const [loading, setLoading] = useState(false);
+const [generatedPage, setGeneratedPage] = useState(null);
+const [error, setError] = useState(null);
+
+const handleInputChange = (e) => {
+const { name, value } = e.target;
+setBusinessDetails(prev => ({
+...prev,
+[name]: value
+}));
+};
+
+const handleGenerate = async () => {
+setLoading(true);
+setError(null);
+
+try {
+const response = await fetch('http://localhost/ai', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+},
+body: JSON.stringify(businessDetails)
+});
+
+if (!response.ok) {
+throw new Error(`HTTP error! status: ${response.status}`);
+}
+
+const data = await response.json();
+setGeneratedPage({
+heading: data.heading || `${businessDetails.name} - Leading ${businessDetails.industry} Solutions`,
+subheading: data.subheading || 'Transform Your Business with Innovative Solutions',
+content: data.content || businessDetails.description
+});
+} catch (err) {
+setError('Failed to generate landing page. Please try again later.');
+console.error('Error:', err);
+} finally {
+setLoading(false);
+}
+};
+
+return (
+<div className="max-w-4xl mx-auto p-4 space-y-8">
+    <Card>
+        <CardHeader>
+            <CardTitle className="text-2xl font-bold">AI Landing Page Generator</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            {error && (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+            </Alert>
+            )}
+
+            <div className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium mb-1">Business Name</label>
+                    <Input
+                            name="name"
+                            value={businessDetails.name}
+                            onChange={handleInputChange}
+                            placeholder="Enter your business name"
+                            className="w-full"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-1">Industry</label>
+                    <Input
+                            name="industry"
+                            value={businessDetails.industry}
+                            onChange={handleInputChange}
+                            placeholder="e.g., Technology, Healthcare, Education"
+                            className="w-full"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-1">Business Description</label>
+                    <Textarea
+                            name="description"
+                            value={businessDetails.description}
+                            onChange={handleInputChange}
+                            placeholder="Describe your business and what makes it unique"
+                            className="w-full h-32"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-1">Target Audience</label>
+                    <Textarea
+                            name="target"
+                            value={businessDetails.target}
+                            onChange={handleInputChange}
+                            placeholder="Describe your ideal customer"
+                            className="w-full h-24"
+                    />
+                </div>
+
+                <Button
+                        onClick={handleGenerate}
+                        disabled={loading || !businessDetails.name || !businessDetails.description}
+                        className="w-full"
+                >
+                    {loading ? (
+                    <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                </>
+                ) : (
+                <>
+                <Wand2 className="mr-2 h-4 w-4" />
+                Generate Landing Page
+            </>
+            )}
+            </Button>
+</div>
+</CardContent>
+</Card>
+
+{generatedPage && (
+<Card>
+    <CardHeader>
+        <CardTitle>Generated Landing Page Preview</CardTitle>
+    </CardHeader>
+    <CardContent>
+        <div className="space-y-6 p-6 bg-white rounded-lg">
+            <h1 className="text-4xl font-bold text-center">{generatedPage.heading}</h1>
+            <h2 className="text-2xl text-center text-gray-600">{generatedPage.subheading}</h2>
+            <p className="text-lg text-gray-700">{generatedPage.content}</p>
+        </div>
+    </CardContent>
+</Card>
+)}
+</div>
+);
+};
+
+export default LandingPageGenerator;
