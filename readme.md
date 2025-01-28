@@ -1,35 +1,37 @@
-```markdown:/Users/malay/Downloads/synth-email/README.md
-# Synth Email Suite
-
+# Synth
 <p align="center">
-  <img src="assets/synth-logo.png" alt="Synth Email Logo" width="200"/>
+  <img src="assets/synth-logo.svg" alt="Synth Email Logo" width="200"/>
 </p>
 
-An AI-powered email management system that combines a modern web client with a robust Spring Boot backend.
+An AI-powered email management system that seamlessly integrates a modern web client with a robust Spring Boot backend, offering intelligent email handling and management capabilities.
 
 ## 🌟 Overview
-
-Synth Email Suite consists of two main components:
-
-- **Synth Client**: A Next.js frontend with AI-powered email features
-- **Synth Server**: A Spring Boot backend handling Gmail API integration
+Synth Email Suite is a comprehensive email management solution with two core components:
+- **Synth Client**: A cutting-edge Next.js frontend featuring AI-powered email capabilities
+- **Synth Server**: A secure Spring Boot backend providing seamless Gmail API integration
 
 ## ⚡️ Core Features
 
 ### Frontend (Synth Client)
-- AI-powered email draft generation using Gemini
-- Smart email summarization
-- Intelligent priority scoring
-- Advanced search and filtering
-- Keyboard-first navigation
-- Modern, minimal UI
+- **AI Writing Assistant**: Generate contextual email drafts using Google Gemini
+- **Smart Analytics**: 
+  - Intelligent email summarization
+  - Priority scoring based on content and sender
+  - Email sentiment analysis
+- **Enhanced UX**:
+  - Lightning-fast search with advanced filtering
+  - Keyboard-first navigation for power users
+  - Clean, minimalist interface
 
 ### Backend (Synth Server)
-- Secure Gmail API integration
-- OAuth2 authentication
-- Email CRUD operations
-- Draft management
-- Real-time email sync
+- **Gmail Integration**:
+  - Secure API communication
+  - Real-time email synchronization
+  - Draft management system
+- **Security**: 
+  - OAuth2 authentication flow
+  - Secure session handling
+  - Rate limiting and protection
 
 ## 🚀 Getting Started
 
@@ -40,41 +42,33 @@ Synth Email Suite consists of two main components:
 - Google Cloud Project with:
   - Gmail API enabled
   - Gemini API enabled
-  - OAuth 2.0 credentials
+  - OAuth 2.0 credentials configured
 
 ### Frontend Setup
-
-1. Install dependencies:
 ```bash
+# Install dependencies
 cd frontend
 npm install
-```
 
-2. Configure environment:
-```bash
+# Configure environment
 cp .env.example .env.local
-```
 
-Add your Gemini API key:
-```env
+# Add required environment variables
 NEXT_PUBLIC_GEMINI=your_gemini_api_key
-```
 
-3. Start development server:
-```bash
+# Start development server
 npm run dev
 ```
 
 ### Backend Setup
-
-1. Configure application properties:
 ```bash
+# Navigate to backend directory
 cd backend
-cp src/main/resources/application.example.yml src/main/resources/application.yml
-```
 
-2. Add your Google OAuth credentials to `application.yml`:
-```yaml
+# Copy configuration template
+cp src/main/resources/application.example.yml src/main/resources/application.yml
+
+# Add OAuth credentials to application.yml
 spring:
   security:
     oauth2:
@@ -83,65 +77,103 @@ spring:
           google:
             client-id: your_client_id
             client-secret: your_client_secret
-```
 
-3. Run the server:
-```bash
+# Run the server
 ./mvnw spring-boot:run
 ```
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- Next.js 14
-- Tailwind CSS
-- Google Gemini AI
-- shadcn/ui Components
+- Next.js 14 with React
+- Tailwind CSS for styling
+- Google Gemini AI integration
+- shadcn/ui Component Library
+- TypeScript for type safety
 
 ### Backend
 - Spring Boot 3
-- Spring Security
-- Gmail API
-- OAuth 2.0
+- Spring Security with OAuth 2.0
+- Gmail API integration
+- PostgreSQL for data persistence
+- Swagger for API documentation
 
-## 📝 Development
-
-### Frontend Development
-Frontend runs on http://localhost:3000
-
-### Backend Development
-Backend API runs on http://localhost:8080
-
-### API Documentation
-Backend API documentation available at http://localhost:8080/swagger-ui.html
-
-## 🔒 Security
-
-- OAuth 2.0 authentication
-- CSRF protection
+## 🔒 Security Features
+- OAuth 2.0 authentication flow
+- CSRF protection mechanisms
 - Secure cookie handling
 - Environment variable management
+- Rate limiting
+- XSS protection
+
+## 🐳 Docker Setup
+```bash
+# Build frontend
+cd frontend
+docker build -t synth-frontend .
+
+# Build backend
+cd ../backend
+docker build -t synth-backend .
+
+# Run services
+docker-compose up
+```
+
+## 🚢 Deployment
+- Frontend deployed on Vercel
+- Backend hosted on AWS ECS
+- Database on AWS RDS
+- CI/CD through GitHub Actions
+
+## 💻 Development
+
+### Local Development
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8080
+- API Docs: http://localhost:8080/swagger-ui.html
+
+### Development Best Practices
+- Follow conventional commits
+- Write unit tests for new features
+- Update documentation for API changes
+- Use feature branches for development
+
+## 🧪 Testing
+```bash
+# Frontend tests
+cd frontend
+npm run test
+
+# Backend tests
+cd backend
+./mvnw test
+```
 
 ## 📄 License
-
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Submit a pull request
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Feel free to open issues for bug reports or feature requests!
+
+## ⚡ Performance Optimization
+- Frontend:
+  - Code splitting
+  - Image optimization
+  - Lazy loading
+- Backend:
+  - Connection pooling
+  - Caching strategies
+  - Request rate limiting
 
 ---
 
 <p align="center">
-  Made with ❤️ by [Your Name]
+  Crafted with ❤️ by Malay Dewangan
 </p>
-```
-
-Would you like me to add:
-1. Docker setup instructions
-2. CI/CD configuration
-3. Deployment guide
-4. Testing instructions
-5. Contribution guidelines
-
-Let me know what additional sections would be helpful!
