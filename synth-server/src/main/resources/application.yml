@@ -1,0 +1,85 @@
+server:
+  port: 8080
+spring:
+  mvc:
+    cors:
+      allowed-origins: http://localhost:3000
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+
+  ai:
+    ollama:
+      chat:
+        options:
+          model: llama3.2
+      base-url: http://localhost:11434
+  datasource:
+    url: jdbc:mysql://${DB_HOST:dealxdev.cpg0qs4w2ghn.ap-south-1.rds.amazonaws.com}:${DB_PORT:3306}/${DB_NAME:paydrop}?useSSL=false
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD}
+  jpa:
+    spring:
+      jpa:
+        properties:
+          hibernate:
+            dialect=org:
+              hibernate:
+                dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
+            scope:
+              - email
+              - profile
+              - https://www.googleapis.com/auth/gmail.readonly
+              - https://www.googleapis.com/auth/gmail.modify
+              - https://www.googleapis.com/auth/gmail.send
+          provider:
+            google:
+              authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+              token-uri: https://www.googleapis.com/oauth2/v4/token
+              user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+              user-name-attribute: sub
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  web:
+    resources:
+      add-mappings=true: jwt
+
+  secret: ${JWT_SECRET:test}
+  expiration: 86400000
+
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.paydrop: DEBUG
+
+razorpay:
+  key:
+    id: ${RAZORPAY_KEY_ID}
+    secret: ${RAZORPAY_KEY_SECRET}
