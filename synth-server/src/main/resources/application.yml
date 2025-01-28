@@ -15,17 +15,13 @@ spring:
           model: llama3.2
       base-url: http://localhost:11434
   datasource:
-    url: jdbc:mysql://${DB_HOST:dealxdev.cpg0qs4w2ghn.ap-south-1.rds.amazonaws.com}:${DB_PORT:3306}/${DB_NAME:paydrop}?useSSL=false
+    url: jdbc:mysql://dealxdev.cpg0qs4w2ghn.ap-south-1.rds.amazonaws.com:3306/paydrop?useSSL=false
     username: ${DB_USERNAME:admin}
     password: ${DB_PASSWORD}
   jpa:
-    spring:
-      jpa:
-        properties:
-          hibernate:
-            dialect=org:
-              hibernate:
-                dialect: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: none
     show-sql: true
