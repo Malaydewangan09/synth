@@ -1,6 +1,4 @@
-package com.paydrop.dto;
-
-import lombok.*;
+package com.paydrop.entity;
 
 
 public class EmailRequest {

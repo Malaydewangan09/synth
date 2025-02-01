@@ -1,7 +1,8 @@
 package com.paydrop;
 
-import com.paydrop.dto.PaymentRequest;
-import com.paydrop.dto.PaymentVerificationRequest;
+import com.paydrop.entity.PaymentRequest;
+import com.paydrop.entity.PaymentVerificationRequest;
+import com.paydrop.service.PaymentService;
 import com.razorpay.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

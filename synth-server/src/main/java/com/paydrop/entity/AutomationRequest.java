@@ -1,4 +1,4 @@
-package com.paydrop.dto;
+package com.paydrop.entity;
 
 public class AutomationRequest {
     private String title;

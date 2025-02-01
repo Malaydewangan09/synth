@@ -1,6 +1,5 @@
-package com.paydrop.dto;
+package com.paydrop.entity;
 
-import lombok.Data;
 import java.math.BigDecimal;
 
 

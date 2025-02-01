@@ -1,4 +1,4 @@
-package com.paydrop;
+package com.paydrop.service;
 
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;

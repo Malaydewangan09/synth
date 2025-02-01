@@ -1,7 +1,7 @@
 package com.paydrop;
 
 import com.google.api.services.gmail.model.Message;
-import com.paydrop.dto.AutomationRequest;
+import com.paydrop.entity.AutomationRequest;
 import com.paydrop.service.GmailService;
 import org.springframework.ai.ollama.OllamaChatModel;
 import com.google.api.services.gmail.model.MessagePart;
