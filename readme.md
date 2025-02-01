@@ -3,6 +3,9 @@
   <img src="assets/synth-logo.svg" alt="Synth Email Logo" width="200"/>
 </p>
 
+<img width="1440" alt="Screenshot 2025-02-02 at 1 28 45 AM" src="https://github.com/user-attachments/assets/5786d23a-9700-48ba-90be-02a9bf8fdf72" />
+
+
 An AI-powered email management system that seamlessly integrates a modern web client with a robust Spring Boot backend, offering intelligent email handling and management capabilities.
 
 ## 🌟 Overview
